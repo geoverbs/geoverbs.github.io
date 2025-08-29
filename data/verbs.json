@@ -1,0 +1,41 @@
+[
+	{
+		"id" : 1,
+		"root" : "ცხოვრ",
+		"present_suffix" : "ობ",
+		"future_suffix" : "ებ",
+		"preverb" : "",
+		"version" : "ი",
+		"aorist_pattern" : "I",
+		"optative_pattern" : "I",
+		"notes" : "",
+		"created_at" : "2025-08-29T14:39:09.000Z",
+		"updated_at" : "2025-08-29T14:42:43.000Z"
+	},
+	{
+		"id" : 13,
+		"root" : "წერ",
+		"present_suffix" : "",
+		"future_suffix" : "",
+		"preverb" : "და",
+		"version" : "",
+		"aorist_pattern" : "I",
+		"optative_pattern" : "I",
+		"notes" : "",
+		"created_at" : "2025-08-29T14:47:08.000Z",
+		"updated_at" : "2025-08-29T14:47:08.000Z"
+	},
+	{
+		"id" : 14,
+		"root" : "ჭამ",
+		"present_suffix" : "",
+		"future_suffix" : "",
+		"preverb" : "შე",
+		"version" : "",
+		"aorist_pattern" : "I",
+		"optative_pattern" : "I",
+		"notes" : "",
+		"created_at" : "2025-08-29T14:49:30.000Z",
+		"updated_at" : "2025-08-29T14:49:30.000Z"
+	}
+]
