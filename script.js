@@ -7,6 +7,9 @@ let conjugations = [];
 let senses = [];
 let pronunciations = [];
 
+let pronByConj = new Map(); // key: conjugation_id -> pronunciation object
+let pronByVerb = new Map(); // key: verb_id -> array of pronunciation objects
+
 async function loadJsonFlexible(path, keyFallback) {
     try {
         const res = await fetch(path);
@@ -58,6 +61,21 @@ async function loadData() {
             conj._morphemes_arr = null;
         }
     }
+
+    // Build pronunciation maps for fast lookup
+    pronByConj = new Map();
+    pronByVerb = new Map();
+    for (const pr of pronunciations) {
+        // ensure ids are strings for consistent keying
+        if (pr.conjugation_id != null && pr.conjugation_id !== "") {
+            pronByConj.set(String(pr.conjugation_id), pr);
+        } else if (pr.verb_id != null && pr.verb_id !== "") {
+            const k = String(pr.verb_id);
+            const arr = pronByVerb.get(k) || [];
+            arr.push(pr);
+            pronByVerb.set(k, arr);
+        }
+    }
 }
 
 function normalize(s) {
@@ -101,7 +119,7 @@ if (document.getElementById("search")) {
         }
 
         if (matches.length === 0) {
-            results.innerHTML = `<li class="p-4 text-sm text-gray-500">No se encontraron formas.</li>`;
+            results.innerHTML = `<li class="p-4 text-sm text-gray-500">No forms were found.</li>`;
             return;
         }
 
@@ -110,6 +128,7 @@ if (document.getElementById("search")) {
             const s = senses.find(ss => Number(ss.verb_id) === Number(verb.id));
             const gloss = s ? (s.gloss || "") : "";
             const li = document.createElement("li");
+
             li.className = "p-3 hover:bg-indigo-50 cursor-pointer transition flex justify-between items-center";
             li.innerHTML = `<div>
                         <div class="text-lg font-medium">${m.conjugated_form}</div>
@@ -134,16 +153,37 @@ if (window.location.pathname.includes("verb.html")) {
 }
 
 function renderVerbDetail() {
+    const T = {
+        presente: ["presente", "present"],
+        imperfect: ["imperfect", "imperfecto", "imperfect"],
+        future: ["future", "futuro"],
+        conditional: ["conditional", "condicional"],
+        aorist: ["aorist", "aoristo"],
+        optative: ["optative", "optativo"],
+        perfect: ["perfect", "perfecto", "perfecto_indicativo", "perfecto_indicativo"],
+        pluperfect: ["pluperfect", "pluperfecto", "pluscuamperfecto", "pluscuamperfecto_indicativo"]
+    };
+
+    // canonicalize possible tense/mood variants (spanish/english)
+    const M = {
+        indicative: ["indicative", "indicativo", ""], // treat empty as indicative fallback
+        subjunctive: ["subjunctive", "subjunctive", "subjunctive", "subjunctive", "subjunctive", "subjunctive", "subjunctive", "subjunctive", "subjunctive", "subjunctive"],
+        subj: ["subjunctive", "subjunctive", "subjunctive", "subjunctive", "subj"]
+    };
+    // simpler mood aliases
+    const moodIndicative = ["indicative", "indicativo", ""];
+    const moodSubj = ["subjunctive", "subjunctive", "subj", "subjunctivo", "subjunctive"];
+
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
     const detail = document.getElementById("verb-detail");
     if (!id) {
-        detail.innerHTML = `<p class="text-gray-600">No se especificó id del verbo.</p>`;
+        detail.innerHTML = `<p class="text-gray-600">Verb not specified.</p>`;
         return;
     }
     const verb = verbs.find(v => String(v.id) === String(id));
     if (!verb) {
-        detail.innerHTML = `<p class="text-gray-600">Verbo no encontrado (id=${id}).</p>`;
+        detail.innerHTML = `<p class="text-gray-600">Verb not fount (id=${id}).</p>`;
         return;
     }
 
@@ -152,36 +192,52 @@ function renderVerbDetail() {
     const verbSenses = senses.filter(s => String(s.verb_id) === String(id));
     const verbPron = pronunciations.filter(p => String(p.verb_id) === String(id));
 
+    const baseFormConj = verbConjs.find(c => c.person === "3sg" && matches(c, T.presente, moodIndicative));
+    const displayRoot = baseFormConj ? baseFormConj.conjugated_form : verb.root;
     // header
     detail.innerHTML = `
+    <head>
+        <title>Geoverb - ${displayRoot}</title>
+    </head>
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-3xl font-semibold">${verb.root}</h2>
+        <h2 class="text-3xl font-semibold">${displayRoot}</h2>
         <div class="text-sm text-gray-600 mt-1">${verb.notes || ""}</div>
-        <div class="mt-2 text-sm text-gray-500">Sufijo pres: ${verb.present_suffix || "—"} · Sufijo fut: ${verb.future_suffix || "—"}</div>
-      </div>
-      <div class="text-right">
-        ${verbPron.length ? verbPron.map(p => `<div class="text-sm text-gray-700">${p.ipa || ""}</div>`).join("") : `<div class="text-sm text-gray-400">Sin pronunciaciones</div>`}
+        <div class="mt-2 text-sm text-gray-500">Present Suffix: ${verb.present_suffix || "—"} · Future Suffix: ${verb.future_suffix || "—"}</div>
       </div>
     </div>
-
     <section class="mt-6">
       <h3 class="text-lg font-medium mb-2">Significados</h3>
       <div id="senses-block" class="text-sm text-gray-700">
-        ${verbSenses.length ? `<ul class="list-disc ml-5">${verbSenses.map(s => `<li><strong>${s.gloss || ""}</strong> — ${s.definition || ""} ${s.examples ? `<div class="mt-1 text-xs text-gray-500">${s.examples}</div>` : ""}</li>`).join("")}</ul>` : `<div class="text-gray-500">Sin definiciones registradas.</div>`}
+        ${
+            verbSenses.length
+                ? `<ol class="list-decimal ml-5 space-y-2">
+                ${verbSenses.map(s => `
+                  <li>
+                    <strong>${s.gloss || ""}</strong>: ${s.definition || ""}
+                    ${
+                    s.examples
+                        ? `<ul class="list-disc ml-6 mt-1 text-xs text-gray-500">
+                            ${s.examples.split("|").map(e => `<li>${e.trim()}</li>`).join("")}
+                          </ul>`
+                        : ""
+                }
+                  </li>
+                `).join("")}
+              </ol>`
+                : `<div class="text-gray-500">No definitions registered.</div>`
+        }
       </div>
     </section>
 
     <section id="screeves-block" class="mt-6">
-      <h3 class="text-lg font-medium mb-2">Conjugaciones</h3>
+          <h3 class="text-lg font-medium mb-2">Conjugations</h3>
       <div id="screeves-container" class="space-y-6"></div>
     </section>
 
     <section class="mt-6">
-      <h3 class="text-lg font-medium mb-2">Pronunciaciones</h3>
-      <div id="pron-block" class="text-sm">
-        ${verbPron.length ? verbPron.map(p => `<div class="mb-3">${p.ipa || ""} ${p.audio_url ? `<div class="mt-1"><audio controls src="${p.audio_url}"></audio></div>` : ""}</div>`).join("") : `<div class="text-gray-500">Sin audios.</div>`}
-      </div>
+      <h3 class="text-lg font-medium mb-2">Pronunciations</h3>
+      <div id="pron-block" class="text-sm"></div>
     </section>
   `;
 
@@ -206,26 +262,6 @@ function renderVerbDetail() {
         if (!moodAliases) return true;
         return isMood(conj, moodAliases);
     }
-
-    // canonicalize possible tense/mood variants (spanish/english)
-    const T = {
-        presente: ["presente", "present"],
-        imperfect: ["imperfect", "imperfecto", "imperfect"],
-        future: ["future", "futuro"],
-        conditional: ["conditional", "condicional"],
-        aorist: ["aorist", "aoristo"],
-        optative: ["optative", "optativo"],
-        perfect: ["perfect", "perfecto", "perfecto_indicativo", "perfecto_indicativo"],
-        pluperfect: ["pluperfect", "pluperfecto", "pluscuamperfecto", "pluscuamperfecto_indicativo"]
-    };
-    const M = {
-        indicative: ["indicative", "indicativo", ""], // treat empty as indicative fallback
-        subjunctive: ["subjunctive", "subjunctive", "subjunctive", "subjunctive", "subjunctive", "subjunctive", "subjunctive", "subjunctive", "subjunctive", "subjunctive"],
-        subj: ["subjunctive", "subjunctive", "subjunctive", "subjunctive", "subj"]
-    };
-    // simpler mood aliases
-    const moodIndicative = ["indicative", "indicativo", ""];
-    const moodSubj = ["subjunctive", "subjunctive", "subj", "subjunctivo", "subjunctive"];
 
     // define screeves as conditions (tenseAliases, moodAliases or null)
     const screeves = [
@@ -280,8 +316,8 @@ function renderVerbDetail() {
             table.innerHTML = `
         <thead>
           <tr class="text-gray-600 border-b">
-            <th class="py-2 px-3 text-left">Persona</th>
-            <th class="py-2 px-3 text-left">Forma</th>
+            <th class="py-2 px-3 text-left">Person</th>
+            <th class="py-2 px-3 text-left">Form</th>
             <th class="py-2 px-3 text-left">Morphemes</th>
             <th class="py-2 px-3 text-left">IPA</th>
             <th class="py-2 px-3 text-left">Audio</th>
@@ -304,8 +340,20 @@ function renderVerbDetail() {
                 });
 
                 const form = c ? (c.conjugated_form || "") : "";
-                const ipa = c ? (c.ipa || "") : "";
-                const audioHtml = c && c.audio_url ? `<audio controls src="${c.audio_url}" class="w-36"></audio>` : "";
+                // IPA: prefer pronunciation linked to conjugation (pronByConj), fallback to c.ipa
+                let ipa = "";
+                if (c) {
+                    const pPron = pronByConj.get(String(c.id));
+                    ipa = pPron?.ipa || c.ipa || "";
+                }
+                // audio for this exact conjugation (if present)
+                const audioHtml = (() => {
+                    if (!c) return "";
+                    const pPron = pronByConj.get(String(c.id));
+                    if (pPron && pPron.audio_url) return `<audio controls src="${pPron.audio_url}" class="w-36"></audio>`;
+                    return "";
+                })();
+
                 const morphemesHtml = c && c._morphemes_arr ? c._morphemes_arr.join(" · ") : (c && c.morphemes && typeof c.morphemes === "string" ? c.morphemes : "");
 
                 const tr = document.createElement("tr");
@@ -314,7 +362,7 @@ function renderVerbDetail() {
           <td class="py-2 px-3 align-top font-medium">${person}</td>
           <td class="py-2 px-3 align-top">${form}</td>
           <td class="py-2 px-3 align-top text-xs text-gray-500">${morphemesHtml}</td>
-          <td class="py-2 px-3 align-top">${ipa}</td>
+          <td class="py-2 px-3 align-top">${ipa ? `<span class="ipa">${ipa}</span>` : ""}</td>
           <td class="py-2 px-3 align-top">${audioHtml}</td>
         `;
                 tbody.appendChild(tr);
