@@ -1,0 +1,12 @@
+/* css/ipa.css - estilo específico para transcripciones IPA */
+.ipa {
+    font-family: "DejaVu Sans Web", "DejaVu Sans", "Noto Sans", "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    letter-spacing: 0;
+    display: inline-block;
+    white-space: nowrap;
+    direction: ltr;
+}

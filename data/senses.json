@@ -1,4 +1,39 @@
 {
 "senses": [
-
+	{
+		"id" : 1,
+		"verb_id" : 1,
+		"language" : "en",
+		"gloss" : "to live",
+		"definition" : "to occupy a home",
+		"examples" : "მე სახლში ვცხობრობ",
+		"created_at" : "2025-08-30T01:05:33.000Z"
+	},
+	{
+		"id" : 2,
+		"verb_id" : 1,
+		"language" : "en",
+		"gloss" : "to reside",
+		"definition" : "to live in a particular place permanently or continuously",
+		"examples" : "",
+		"created_at" : "2025-08-30T01:05:57.000Z"
+	},
+	{
+		"id" : 3,
+		"verb_id" : 1,
+		"language" : "en",
+		"gloss" : "to inhabit",
+		"definition" : "to live in or occupy a place as a settled residence or habitat",
+		"examples" : "",
+		"created_at" : "2025-08-30T01:06:25.000Z"
+	},
+	{
+		"id" : 4,
+		"verb_id" : 1,
+		"language" : "en",
+		"gloss" : "to dwell",
+		"definition" : "to live in a particular place",
+		"examples" : "",
+		"created_at" : "2025-08-30T01:06:48.000Z"
+	}
 ]}

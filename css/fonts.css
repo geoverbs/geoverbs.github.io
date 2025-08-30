@@ -1,0 +1,9 @@
+/* /css/fonts.css */
+@font-face {
+    font-family: "DejaVu Sans Web";
+    src: url("/fonts/dejavu-sans-webfont.woff2") format("woff2"),
+    url("/fonts/dejavu-sans-webfont.woff") format("woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
