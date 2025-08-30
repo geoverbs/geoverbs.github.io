@@ -1,4 +1,5 @@
-[
+{
+"verbs": [
 	{
 		"id" : 1,
 		"root" : "ცხოვრ",
@@ -258,5 +259,109 @@
 		"notes" : "",
 		"created_at" : "2025-08-30T00:07:22.000Z",
 		"updated_at" : "2025-08-30T00:07:22.000Z"
+	},
+	{
+		"id" : 36,
+		"root" : "ტარ",
+		"present_suffix" : "ებ",
+		"future_suffix" : "ებ",
+		"preverb" : "გა",
+		"version" : "",
+		"aorist_pattern" : "I",
+		"optative_pattern" : "I",
+		"notes" : "",
+		"created_at" : "2025-08-30T12:30:12.000Z",
+		"updated_at" : "2025-08-30T12:30:12.000Z"
+	},
+	{
+		"id" : 37,
+		"root" : "არის",
+		"present_suffix" : "",
+		"future_suffix" : "",
+		"preverb" : "",
+		"version" : "",
+		"aorist_pattern" : "I",
+		"optative_pattern" : "I",
+		"notes" : "",
+		"created_at" : "2025-08-30T12:31:44.000Z",
+		"updated_at" : "2025-08-30T12:34:39.000Z"
+	},
+	{
+		"id" : 38,
+		"root" : "პოვ",
+		"present_suffix" : "ულობ",
+		"future_suffix" : "ი",
+		"preverb" : "",
+		"version" : "ი",
+		"aorist_pattern" : "I",
+		"optative_pattern" : "I",
+		"notes" : "",
+		"created_at" : "2025-08-30T14:23:42.000Z",
+		"updated_at" : "2025-08-30T14:23:42.000Z"
+	},
+	{
+		"id" : 39,
+		"root" : "ტყ",
+		"present_suffix" : "ობ",
+		"future_suffix" : "ობ",
+		"preverb" : "შე",
+		"version" : "",
+		"aorist_pattern" : "XI",
+		"optative_pattern" : "I",
+		"notes" : "",
+		"created_at" : "2025-08-30T14:31:32.000Z",
+		"updated_at" : "2025-08-30T14:31:32.000Z"
+	},
+	{
+		"id" : 40,
+		"root" : "ცნობიერ",
+		"present_suffix" : "ებ",
+		"future_suffix" : "ებ",
+		"preverb" : "გა",
+		"version" : "",
+		"aorist_pattern" : "I",
+		"optative_pattern" : "I",
+		"notes" : "",
+		"created_at" : "2025-08-30T14:34:34.000Z",
+		"updated_at" : "2025-08-30T14:34:34.000Z"
+	},
+	{
+		"id" : 41,
+		"root" : "ხატ",
+		"present_suffix" : "ავ",
+		"future_suffix" : "ავ",
+		"preverb" : "და",
+		"version" : "",
+		"aorist_pattern" : "I",
+		"optative_pattern" : "I",
+		"notes" : "",
+		"created_at" : "2025-08-30T14:39:47.000Z",
+		"updated_at" : "2025-08-30T14:39:47.000Z"
+	},
+	{
+		"id" : 42,
+		"root" : "გდ",
+		"present_suffix" : "ებ",
+		"future_suffix" : "ებ",
+		"preverb" : "გადა",
+		"version" : "",
+		"aorist_pattern" : "II",
+		"optative_pattern" : "I",
+		"notes" : "",
+		"created_at" : "2025-08-30T14:44:59.000Z",
+		"updated_at" : "2025-08-30T14:44:59.000Z"
+	},
+	{
+		"id" : 43,
+		"root" : "წყვეტ",
+		"present_suffix" : "",
+		"future_suffix" : "",
+		"preverb" : "მო",
+		"version" : "",
+		"aorist_pattern" : "I",
+		"optative_pattern" : "I",
+		"notes" : "",
+		"created_at" : "2025-08-30T14:48:51.000Z",
+		"updated_at" : "2025-08-30T14:48:51.000Z"
 	}
-]
+]}

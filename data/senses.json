@@ -35,5 +35,14 @@
 		"definition" : "to live in a particular place",
 		"examples" : "",
 		"created_at" : "2025-08-30T01:06:48.000Z"
+	},
+	{
+		"id" : 5,
+		"verb_id" : 13,
+		"language" : "en",
+		"gloss" : "to write",
+		"definition" : "to form letters, words or symbols on a surface in order to communicate",
+		"examples" : "მე დავწერ რაღაცას|შენ რომ დაწერდე წერილს",
+		"created_at" : "2025-08-30T15:04:48.000Z"
 	}
 ]}

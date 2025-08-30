@@ -108,6 +108,13 @@ if (document.getElementById("search")) {
 
         const exact = conjugations.filter(c => (c.normalized_form || "").toLowerCase() === q);
         const partial = conjugations.filter(c => (c.normalized_form || "").toLowerCase().includes(q));
+
+        // --- 2) Buscar también en senses (gloss y definición) ---
+        const senseMatches = senses.filter(s =>
+            (s.gloss && s.gloss.toLowerCase().includes(q)) ||
+            (s.definition && s.definition.toLowerCase().includes(q))
+        );
+
         const seen = new Set();
         const matches = [];
         for (const c of [...exact, ...partial]) {
@@ -118,27 +125,55 @@ if (document.getElementById("search")) {
             if (matches.length >= 50) break;
         }
 
+        // Añadir matches por gloss/definition
+        for (const s of senseMatches) {
+            if (!seen.has("s-" + s.id)) {
+                seen.add("s-" + s.id);
+                matches.push({ type: "sense", data: s });
+            }
+            if (matches.length >= 50) break;
+        }
+
         if (matches.length === 0) {
             results.innerHTML = `<li class="p-4 text-sm text-gray-500">No forms were found.</li>`;
             return;
         }
 
+        // Renderizar resultados
         for (const m of matches.slice(0, 30)) {
-            const verb = verbs.find(v => Number(v.id) === Number(m.verb_id)) || {};
-            const s = senses.find(ss => Number(ss.verb_id) === Number(verb.id));
-            const gloss = s ? (s.gloss || "") : "";
-            const li = document.createElement("li");
-
+            let li = document.createElement("li");
             li.className = "p-3 hover:bg-indigo-50 cursor-pointer transition flex justify-between items-center";
-            li.innerHTML = `<div>
-                        <div class="text-lg font-medium">${m.conjugated_form}</div>
-                        <div class="text-sm text-gray-500">${verb.root ? verb.root : "—"} · ${m.tense || ""} ${gloss ? "· " + gloss : ""}</div>
-                      </div>
-                      <div class="text-sm text-indigo-600">Ver</div>`;
-            li.onclick = () => {
-                const vid = verb.id || m.verb_id;
-                window.location.href = `verb.html?id=${vid}&highlight=${m.id}`;
-            };
+
+            if (m.type === "conj") {
+                // --- resultado por forma georgiana ---
+                const c = m.data;
+                const verb = verbs.find(v => Number(v.id) === Number(c.verb_id)) || {};
+                const s = senses.find(ss => Number(ss.verb_id) === Number(verb.id));
+                const gloss = s ? (s.gloss || "") : "";
+                li.innerHTML = `<div>
+                                <div class="text-lg font-medium">${c.conjugated_form}</div>
+                                <div class="text-sm text-gray-500">${verb.root ? verb.root : "—"} · ${c.tense || ""} ${gloss ? "· " + gloss : ""}</div>
+                            </div>
+                            <div class="text-sm text-indigo-600">Ver</div>`;
+                li.onclick = () => {
+                    const vid = verb.id || c.verb_id;
+                    window.location.href = `verb.html?id=${vid}&highlight=${c.id}`;
+                };
+            } else if (m.type === "sense") {
+                // --- resultado por acepción ---
+                const s = m.data;
+                const verb = verbs.find(v => Number(v.id) === Number(s.verb_id)) || {};
+                li.innerHTML = `<div>
+                                <div class="text-lg font-medium">${s.gloss}</div>
+                                <div class="text-sm text-gray-500">${verb.root ? verb.root : "—"} · ${s.definition || ""}</div>
+                            </div>
+                            <div class="text-sm text-indigo-600">Ver</div>`;
+                li.onclick = () => {
+                    const vid = verb.id || s.verb_id;
+                    window.location.href = `verb.html?id=${vid}&highlight=sense-${s.id}`;
+                };
+            }
+
             results.appendChild(li);
         }
     }
